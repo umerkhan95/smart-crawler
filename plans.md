@@ -1,6 +1,10 @@
 # smart-crawler build plan
 
-Stateless, open-source. No persistence layer at any phase.
+**Reframed: benchmark-first, library-second.** The benchmark is the
+primary asset; the library is the reference implementation that wins it.
+See `benchmark/methodology.md` and Issue #3.
+
+Stateless by default; optional `cache: CacheProtocol` only.
 
 ## Phase 0 — Scaffolding (done)
 - [x] Repo init, README, CLAUDE.md, plans.md
@@ -18,7 +22,16 @@ Stateless, open-source. No persistence layer at any phase.
 - [x] Schema inference (`generate_schema()` is the second LLM call)
 - [x] Design synthesis with concrete signatures
 
-## Phase 2 — Core modules (SRP, no cross-imports)
+## Phase 2 — Benchmark methodology + harness (NEW; was: core modules)
+- [ ] Issue #3: methodology spec (open questions resolved)
+- [ ] `benchmark/harness/runner.py` + `metrics.py` + `judge.py`
+- [ ] `benchmark/baselines/b0_naive.py` and `b1_crawl4ai.py` (the cheapest
+      two baselines so the harness has something to run end-to-end)
+- [ ] FreshQA query loader; BrowseComp loader with redaction enforcement
+- [ ] First pilot run: B0 vs B1 on a small FreshQA subset, results
+      committed to `results/`
+
+## Phase 3 — Reference implementation (SRP, no cross-imports)
 - [ ] `types.py`        — Query, Source, Fact, Result, Budget, ExtractionPlan
 - [ ] `router.py`       — snippet / single-page / deep / adaptive (4 branches, day one)
 - [ ] `planner.py`      — LLM: query + sample pages → ExtractionPlan

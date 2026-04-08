@@ -1,14 +1,34 @@
 # smart-crawler — rules
 
 ## Purpose
-A stateless, open-source retrieval pipeline built on crawl4ai. A reasoning
-LLM calls `smart_search()` and gets back schema-valid, cited facts. Every
-call is self-contained: no database, no cache, no on-disk artifacts.
+**Benchmark first, library second.** This repository ships an open
+benchmark for measuring web-retrieval token noise in LLM agents
+(`benchmark/`) and a stateless reference implementation that wins it
+(`smart_crawler/`). The benchmark is the primary asset; the library
+exists to be one entry on the leaderboard, not a general-purpose scraping
+framework. See [`benchmark/methodology.md`](benchmark/methodology.md).
+
+Every retrieval call is self-contained: no implicit cache, no database,
+no on-disk artifacts. An optional `cache: CacheProtocol` parameter lets
+callers BYO storage; smart-crawler ships no implementation.
 
 ## Design rules (non-negotiable)
-- **Stateless**. No persistence layer, no cache, no on-disk artifacts. Every
-  `smart_search()` call is self-contained. Users who want caching wrap us;
-  we do not wrap them.
+- **Benchmark is the product.** Every implementation choice in
+  `smart_crawler/` must be justifiable by its effect on the benchmark's
+  two axes: noise ratio (lower) and answer accuracy (no regression). If a
+  feature does not move either axis, it does not ship.
+- **Stateless by default; optional cache is a borrowed protocol.** No
+  implicit cache, no database, no on-disk artifacts. The library accepts
+  an optional `cache: CacheProtocol | None = None` parameter so callers
+  can pass `dict`/`diskcache`/`redis`/etc. smart-crawler ships zero cache
+  implementations and no default. The library has no state; it borrows one
+  when given one.
+- **HTML sanitization + spotlighting before any LLM sees content.** The
+  planner is the highest-value prompt-injection target (a poisoned plan
+  contaminates every page on a domain). Strip `<script>`, `<iframe>`,
+  `<meta>`, and event handlers. Apply Microsoft Spotlighting datamarking.
+  Schema-sanity-check the planner's output before trusting it. This is a
+  hard rule, not a best-effort.
 - **Strict SRP**: every module does one thing. Planner plans, probe probes,
   crawler crawls, extractor extracts, repairer repairs. No god modules.
 - **Plain functions by default**. Classes only when state or polymorphism
