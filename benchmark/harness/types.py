@@ -12,7 +12,7 @@ from typing import Any, Literal, Protocol
 from pydantic import BaseModel, Field
 
 QuerySetName = Literal["freshqa", "browsecomp"]
-BaselineId = Literal["b0_naive", "b1_crawl4ai", "b2_firecrawl", "b3_smart", "b4_langextract"]
+BaselineId = Literal["b0_naive", "b1_crawl4ai", "b2_firecrawl", "b3_smart", "b4_langextract", "b5_tavily"]
 BenchmarkMode = Literal["controlled", "e2e"]
 
 

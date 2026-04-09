@@ -205,6 +205,7 @@ the reproducibility record.
 | B2 | Firecrawl | `firecrawl.scrape()` → markdown → one chunk per page | A competitor |
 | B3 | smart-crawler | `smart_search()` → grounded fact chunks | The reference implementation |
 | B4 | LangExtract | Text-only grounded extraction (receives B0's fetched text) | Extraction quality in isolation |
+| B5 | Tavily | Tavily search API with built-in extraction | Commercial search API (hardest baseline) |
 
 Every baseline returns `RetrievedContext(chunks=[...])`. The harness
 serializes all of them with the same template. The answer LLM is the

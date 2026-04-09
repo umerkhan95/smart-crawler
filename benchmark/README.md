@@ -78,6 +78,7 @@ The pipelines are:
 | **B2** | Firecrawl | Firecrawl `/scrape` → `gpt-4o-mini` extract |
 | **B3** | smart-crawler | the reference implementation in `smart_crawler/` |
 | **B4** | LangExtract | text-only baseline (does not crawl; receives B0's fetched text) |
+| **B5** | Tavily | Tavily search API with built-in extraction (hardest baseline) |
 
 Adding a baseline is a contribution. Open a PR with a new file in
 `baselines/` that implements the harness's `Baseline` protocol.
