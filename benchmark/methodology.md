@@ -24,8 +24,14 @@ Where:
   LLM sees). System prompt excluded; only retrieved evidence is counted.
 - `answer_span_tokens` = the minimum contiguous tokens in the serialized
   context that contain the ground-truth answer span(s)
-- Tokenizer: `tiktoken cl100k_base` (fixed, no model-specific drift).
-  Single source of truth: `metrics.count_tokens()`.
+- Tokenizer: `tiktoken encoding_for_model(answer_model)` with fallback to
+  `o200k_base` for unknown models (Claude, Gemini, local). `cl100k_base`
+  is deprecated since tiktoken 0.10+; `o200k_base` is the current standard
+  (GPT-4o era). RAGAS, MIRAGE, LlamaIndex all use tiktoken.
+  Single source of truth: `tokenizer.count_tokens()`.
+  Special tokens treated as regular text (`disallowed_special=()`).
+  **Always tokenize the full serialized string, never sum per-chunk counts**
+  (BPE merges across chunk boundaries cause 5-15% error when summing).
 
 `noise_ratio = 0.0` means every token of context contributed to the
 answer. `noise_ratio = 0.95` means 95% of context was ignored.
@@ -257,6 +263,8 @@ A run is reproducible iff its result file records:
 - [x] Serialization template: harness-owned, fixed, versioned (decided)
 - [x] Answer/judge LLM: configurable, recorded in every result (decided)
 - [x] Benchmark modes: controlled + e2e, reported separately (decided)
+- [x] Tokenizer: tiktoken encoding_for_model() with o200k_base fallback (decided)
+- [x] Answer span: SQuAD/TriviaQA normalization, case-insensitive (decided)
 
 ## Prior art consulted
 
