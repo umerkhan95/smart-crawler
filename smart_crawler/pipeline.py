@@ -4,48 +4,100 @@ This is the ONLY module that imports from sibling worker modules. Every
 worker (router, discoverer, crawler, planner, probe, extractor, repairer,
 citer) is imported here and nowhere else. Workers do not import each other.
 
-Responsibilities:
-- L0 Intake     — validate/normalize the Query
-- L1 Route      — call router.route
-- L2 Discover   — call discoverer.discover (or use seed_urls)
-- L3 Fetch      — call crawler.crawl (streamed)
-- L5 Plan       — call planner.make_plan (1-2 LLM calls)
-- L5b Probe     — call probe.probe_plan, re-plan once on coverage failure
-- L6 Extract    — call extractor.extract per page
-- L7 Ground     — call citer.attach_citations per record
-- L8 Repair     — call repairer.repair on extraction failures (bounded)
-- L9 Stop       — schema-completeness OR budget OR adaptive plateau
-
-Owns the structured-mode stop loop: schema-completeness, NOT crawl4ai's
-saturation metric. Reserve AdaptiveCrawler's saturation for `summary` mode.
+Two execution paths:
+- run_summary():     query → search → fetch+filter → generate+ground → Result
+                     (implemented — the path the benchmark tests)
+- run():             full structured pipeline (Phase 3 — raises NotImplementedError)
 """
 
 from __future__ import annotations
 
+import asyncio
+import logging
+
 from smart_crawler import citer as citer
 from smart_crawler import crawler as crawler
-from smart_crawler import discoverer as discoverer
-from smart_crawler import extractor as extractor
-from smart_crawler import planner as planner
-from smart_crawler import probe as probe
-from smart_crawler import repairer as repairer
-from smart_crawler import router as router
-from smart_crawler.types import Query, Result
+from smart_crawler.types import (
+    Fact,
+    Query,
+    Result,
+    RetrievalError,
+)
+
+logger = logging.getLogger(__name__)
+
+
+async def run_summary(
+    query: Query,
+    urls: list[str],
+    model: str = "gpt-4o-mini",
+) -> Result:
+    """Summary-mode pipeline: the path that competes with B5b.
+
+    1. Fetch + filter pages (crawler.fetch_and_filter — sync, run in thread)
+    2. Generate grounded answer (citer.generate_and_ground — async, 1 LLM call)
+    3. Package as Result
+
+    If citer returns no grounded facts, the Result has zero facts and an
+    error entry. The caller decides how to handle it (the benchmark scores
+    it as accuracy=0).
+    """
+    errors: list[RetrievalError] = []
+
+    # L3+L4: fetch + sanitize + filter + truncate (sync → run in thread)
+    pages = await asyncio.to_thread(
+        crawler.fetch_and_filter, urls, query.query
+    )
+
+    if not pages:
+        errors.append(
+            RetrievalError(
+                layer="fetch",
+                reason="All URLs failed to fetch or were filtered out by relevance.",
+            )
+        )
+        return Result(
+            query=query,
+            facts=[],
+            pages_crawled=0,
+            llm_calls=0,
+            stopped_because="error",
+            errors=errors,
+        )
+
+    # L7: generate + ground (1 LLM call)
+    facts: list[Fact] = await citer.generate_and_ground(
+        query=query.query,
+        pages=pages,
+        model=model,
+    )
+
+    if not facts:
+        errors.append(
+            RetrievalError(
+                layer="ground",
+                reason="LLM generated an answer but no claims survived quote verification.",
+            )
+        )
+
+    return Result(
+        query=query,
+        facts=facts,
+        pages_crawled=len(pages),
+        llm_calls=1,
+        stopped_because="schema_satisfied" if facts else "error",
+        errors=errors,
+    )
 
 
 async def run(query: Query) -> Result:
-    """Compose the 9 layers into a single retrieval call. Stateless."""
-    # L0 intake (validation / defaults already applied by api.smart_search)
-    # L1 route
-    _decision = router.route(query)
-    # L2 discover
-    _candidates = await discoverer.discover(query, _decision)
-    # L5 plan (needs sample pages — fetch a couple via crawler first)
-    # L5b probe → re-plan once on failure
-    # L3 fetch the rest
-    # L6 extract per page
-    # L7 ground per record
-    # L8 repair on failures (bounded, tagged)
-    # L9 stop on schema-completeness | budget | plateau
-    _ = (citer, crawler, extractor, planner, probe, repairer)  # silence unused-import until impl
-    raise NotImplementedError("pipeline.run — Phase 2 stub")
+    """Full structured pipeline — Phase 3 stub.
+
+    For the benchmark pilot, use run_summary() directly. This function
+    will compose all 9 layers when the structured-mode workers are
+    implemented.
+    """
+    raise NotImplementedError(
+        "pipeline.run (structured mode) — Phase 3 stub. "
+        "Use pipeline.run_summary() for the benchmark."
+    )

@@ -1,7 +1,7 @@
 """Public API. The only function external callers should use.
 
-Wraps pipeline.run() with type coercion (Pydantic class -> JSON schema dict,
-default Budget, etc). This is the L0 intake boundary.
+Wraps pipeline.run_summary() for summary mode (the benchmark path) and
+pipeline.run() for structured mode (Phase 3 stub).
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ async def smart_search(
     freshness: str | None = None,
     budget: Budget | None = None,
     must_cite: bool = True,
+    model: str = "gpt-4o-mini",
 ) -> Result:
     """Offloaded web retrieval.
 
@@ -36,4 +37,15 @@ async def smart_search(
         budget=budget or Budget(),
         must_cite=must_cite,
     )
+
+    if mode == "summary":
+        if not q.seed_urls:
+            # Discover URLs via search if none provided
+            from benchmark.harness.search import search_urls
+
+            urls = await search_urls(query, max_results=5)
+        else:
+            urls = q.seed_urls
+        return await pipeline.run_summary(q, urls, model=model)
+
     return await pipeline.run(q)

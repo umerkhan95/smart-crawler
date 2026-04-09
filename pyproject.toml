@@ -7,7 +7,12 @@ requires-python = ">=3.12"
 dependencies = [
     "crawl4ai>=0.8.5,<0.9",
     "pydantic>=2.7",
+    "rapidfuzz>=3.0",
     "tiktoken>=0.12",
+    "requests>=2.31",
+    "beautifulsoup4>=4.12",
+    "openai>=1.30",
+    "python-dotenv>=1.0",
 ]
 
 [project.optional-dependencies]
