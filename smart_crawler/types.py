@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 Mode = Literal["structured", "summary"]
 ExtractedBy = Literal["deterministic", "llm_fallback"]
+GroundingLevel = Literal["grounded", "entailed", "paraphrase", "low_confidence"]
 RouteBranch = Literal["snippet", "single_page", "deep_crawl", "adaptive_crawl"]
 StopReason = Literal[
     "schema_satisfied",
@@ -131,12 +132,21 @@ class Source(BaseModel):
 
 
 class Fact(BaseModel):
-    """A grounded, schema-valid extraction. Cannot exist without a Source."""
+    """A grounded extraction. Cannot exist without a Source.
+
+    grounding_level indicates how the fact was verified:
+    - grounded:       verbatim string match in source page
+    - entailed:       NLI model confirms source supports the claim
+    - paraphrase:     fuzzy string match (rapidfuzz)
+    - low_confidence: could not verify, returned with warning (not dropped)
+    """
 
     data: dict[str, Any] | str
+    answer: str | None = None  # the LLM's synthesized answer sentence
     sources: list[Source] = Field(min_length=1)
     confidence: float = Field(ge=0.0, le=1.0)
     extracted_by: ExtractedBy
+    grounding_level: GroundingLevel = "grounded"
 
 
 # ---------------------------------------------------------------------------

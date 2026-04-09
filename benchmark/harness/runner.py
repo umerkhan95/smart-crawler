@@ -76,12 +76,18 @@ async def evaluate_query(
     """
     ctx = await baseline.retrieve(query, shared_urls=shared_urls)
 
+    # Short-circuit: empty context = accuracy 0, skip LLM calls
+    if not ctx.chunks:
+        return metrics.score_query(
+            ctx=ctx, query=query, baseline_id=baseline.id,
+            judge_used=False, accuracy=0, model=answer_model,
+        )
+
     # Accuracy: exact match first, LLM judge fallback
     if metrics.exact_match_accuracy(ctx, query):
         accuracy = 1
         judge_used = False
     else:
-        # Build the answer prompt and get candidate answer from answer LLM
         prompt = serializer.build_answer_prompt(ctx, query)
         candidate = await _call_answer_llm(prompt, answer_model)
 
