@@ -45,14 +45,13 @@ from benchmark.harness.types import (
 async def discover_shared_urls(query: BenchmarkQuery) -> list[str]:
     """Discover URLs once per query for controlled mode.
 
-    Uses a neutral search (not tied to any baseline) so no baseline gets
-    a discovery advantage. The URLs returned here are passed to every
+    Uses Tavily (neutral search, not tied to any baseline) so no baseline
+    gets a discovery advantage. The URLs returned here are passed to every
     baseline's retrieve(query, shared_urls=urls).
     """
-    raise NotImplementedError(
-        "discover_shared_urls — requires a search API integration. "
-        "Phase 2 stub."
-    )
+    from benchmark.harness import search as search
+
+    return await search.search_urls(query.question, max_results=5)
 
 
 # ---------------------------------------------------------------------------
@@ -111,9 +110,13 @@ async def _call_answer_llm(prompt: str, model: str) -> str:
     Temperature 0, single completion. Model is configurable — passed
     from runner.run(answer_model=...).
     """
-    raise NotImplementedError(
-        "_call_answer_llm — requires an LLM API integration. "
-        "Phase 2 stub."
+    from benchmark.harness import llm as llm
+
+    return await llm.complete(
+        prompt=prompt,
+        model=model,
+        temperature=0.0,
+        max_tokens=256,
     )
 
 

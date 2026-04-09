@@ -86,11 +86,7 @@ class NaiveBaseline:
         )
 
     async def _discover_urls(self, query: BenchmarkQuery) -> list[str]:
-        """E2E mode: discover URLs from the query.
+        """E2E mode: discover URLs from the query via Tavily."""
+        from benchmark.harness import search as search
 
-        Uses a search API to find relevant pages. This is the discovery
-        step that controlled mode skips.
-        """
-        raise NotImplementedError(
-            "b0_naive._discover_urls — requires search API. Phase 2 stub."
-        )
+        return await search.search_urls(query.question, max_results=5)
