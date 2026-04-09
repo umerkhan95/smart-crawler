@@ -1,0 +1,122 @@
+[
+  {
+    "qid": "124",
+    "baseline": "B6_llm_search",
+    "question": "How many children does Leonardo DiCaprio have?",
+    "ground_truth": "Leonardo DiCaprio does not have any children.",
+    "context_tokens": 8790,
+    "answer_span_tokens": 10,
+    "noise_ratio": 0.9989,
+    "accuracy": 1,
+    "bytes_fetched": 18478,
+    "chunks_returned": 10
+  },
+  {
+    "qid": "125",
+    "baseline": "B6_llm_search",
+    "question": "How many humans have landed on Mars?",
+    "ground_truth": "No humans have been to Mars yet.",
+    "context_tokens": 1506,
+    "answer_span_tokens": 1,
+    "noise_ratio": 0.9993,
+    "accuracy": 1,
+    "bytes_fetched": 5603,
+    "chunks_returned": 10
+  },
+  {
+    "qid": "126",
+    "baseline": "B6_llm_search",
+    "question": "How many UC schools are there in the United States?",
+    "ground_truth": "10",
+    "context_tokens": 1750,
+    "answer_span_tokens": 1,
+    "noise_ratio": 0.9994,
+    "accuracy": 1,
+    "bytes_fetched": 7513,
+    "chunks_returned": 9
+  },
+  {
+    "qid": "127",
+    "baseline": "B6_llm_search",
+    "question": "Who is the highest-paid coach per season ever on the American television series ",
+    "ground_truth": "Ariana Grande",
+    "context_tokens": 1004,
+    "answer_span_tokens": 3,
+    "noise_ratio": 0.997,
+    "accuracy": 1,
+    "bytes_fetched": 2852,
+    "chunks_returned": 9
+  },
+  {
+    "qid": "128",
+    "baseline": "B6_llm_search",
+    "question": "Who is the CEO of Google?",
+    "ground_truth": "Sundar Pichai",
+    "context_tokens": 2577,
+    "answer_span_tokens": 6,
+    "noise_ratio": 0.9977,
+    "accuracy": 1,
+    "bytes_fetched": 9361,
+    "chunks_returned": 10
+  },
+  {
+    "qid": "129",
+    "baseline": "B6_llm_search",
+    "question": "How much does parking cost at the Big E?",
+    "ground_truth": "$10",
+    "context_tokens": 1155,
+    "answer_span_tokens": 2,
+    "noise_ratio": 0.9983,
+    "accuracy": 1,
+    "bytes_fetched": 3778,
+    "chunks_returned": 9
+  },
+  {
+    "qid": "130",
+    "baseline": "B6_llm_search",
+    "question": "What is the top-ranked university in the US according to the US News Ranking?",
+    "ground_truth": "Princeton University",
+    "context_tokens": 3186,
+    "answer_span_tokens": 2,
+    "noise_ratio": 0.9994,
+    "accuracy": 1,
+    "bytes_fetched": 10806,
+    "chunks_returned": 10
+  },
+  {
+    "qid": "131",
+    "baseline": "B6_llm_search",
+    "question": "What's the world record time for running a mile?",
+    "ground_truth": "3:43.13",
+    "context_tokens": 2086,
+    "answer_span_tokens": 5,
+    "noise_ratio": 0.9976,
+    "accuracy": 1,
+    "bytes_fetched": 5701,
+    "chunks_returned": 10
+  },
+  {
+    "qid": "132",
+    "baseline": "B6_llm_search",
+    "question": "How many grand slams does Rafael Nadal have?",
+    "ground_truth": "22",
+    "context_tokens": 2446,
+    "answer_span_tokens": 1,
+    "noise_ratio": 0.9996,
+    "accuracy": 1,
+    "bytes_fetched": 7481,
+    "chunks_returned": 10
+  },
+  {
+    "qid": "133",
+    "baseline": "B6_llm_search",
+    "question": "Who is the current German chancellor?",
+    "ground_truth": "Friedrich Merz",
+    "context_tokens": 552,
+    "answer_span_tokens": 5,
+    "noise_ratio": 0.9909,
+    "accuracy": 1,
+    "bytes_fetched": 1383,
+    "chunks_returned": 10
+  }
+]
